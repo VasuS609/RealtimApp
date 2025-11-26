@@ -1,0 +1,8 @@
+*.tmp
+*.log
+!important.log
+.DS_Store
+node_modules/
+dist/
+.env
+.vscode/
