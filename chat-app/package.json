@@ -13,11 +13,14 @@
     "@auth0/auth0-react": "^2.9.0",
     "@tailwindcss/vite": "^4.1.17",
     "@types/ws": "^8.18.1",
+    "clsx": "^2.1.1",
     "http": "^0.0.1-security",
     "lucide-react": "^0.555.0",
+    "motion": "^12.23.25",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.6",
+    "tailwind-merge": "^3.4.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {

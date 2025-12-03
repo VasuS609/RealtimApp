@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import "./index.css"
 
 export default function Chat() {
   const [messages, setMessages] = useState<string[]>([]);
@@ -46,9 +47,10 @@ export default function Chat() {
       <h2>real time chat app</h2>
 
       <div
+      className="text-violet-700"
         style={{
           border: "1px solid black",
-          height: "300px",
+          height: "",
           overflowY: "scroll",
           padding: "10px",
           marginBottom: "10px",
@@ -58,14 +60,18 @@ export default function Chat() {
           <div key={index}>{msg}</div>
         ))}
       </div>
+<div className="h-30px ">
+
 
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+
         placeholder="type a message"
       />
-      <button onClick={sendMessage}>Send</button>
+      <button  onClick={sendMessage}>Send</button>
+      </div>
     </div>
   );
 }

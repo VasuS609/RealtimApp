@@ -4,7 +4,7 @@
   "description": "stateless | stateful be (to scale up easily) (db store data) | hard to scale up/down - chatapp, trading, gaming, excalidraw, bidirectional pipe",
   "main": "index.js",
   "scripts": {
-     "start": "cd chat-app && npm run dev",
+    "start": "cd chat-app && npm run dev",
     "server": "cd relayer-ws && npm run dev",
     "dev": "concurrently \"npm run start\" \"npm run server\""
   },
@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/VasuS609/RealtimApp/issues"
   },
-  "homepage": "https://github.com/VasuS609/RealtimApp#readme"
+  "homepage": "https://github.com/VasuS609/RealtimApp#readme",
+  "dependencies": {
+    "motion": "^12.23.25"
+  }
 }

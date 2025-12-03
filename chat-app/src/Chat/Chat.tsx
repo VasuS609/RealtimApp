@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef,useCallback, useState } from "react";
+import { useWebSocket } from "./useWebSocket";
 
 export default function Chat() {
   const [input, setInput] = useState<string>("");        // single string
   const [messages, setMessages] = useState<string[]>([]); // always an array
 
+  const { send, data } = useWebSocket("ws://localhost:8080");
+
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3000");
+    // append incoming messages from the websocket into messages state
+    if (!data) return;
 
-    ws.onmessage = async (event) => {
-      let data = event.data;
-
+    (async () => {
       if (typeof data === "string") {
         setMessages((prev) => [...prev, data]);
       } else if (data instanceof Blob) {
@@ -19,21 +21,18 @@ export default function Chat() {
         const text = new TextDecoder().decode(data);
         setMessages((prev) => [...prev, text]);
       }
-    };
-
-
-    return () => ws.close();
-  }, []);
+    })();
+  }, [data]);
 
   function handleMessage() {
     if (!input.trim()) return;
-
-    setMessages((prev) => [...prev, input]); // add message
-    setInput("");                             // clear input
+    // send to server (server will broadcast to all clients, including sender)
+    send(input);
+    setInput("");
   }
 
   return (
-    <div className="h-screen p-2 grid grid-rows-[1fr-auto] gap-4 bg-gray-100 dark:bg-gray-700 transition">
+    <div className="h-screen p-2 grid grid-rows-[1fr-auto] gap-4 text-black bg-gray-100 dark:bg-gray-700 transition">
       {/* Chat Box */}
       <div id="chatBox" className="overflow-y-auto p-2 bg-white rounded shadow">
         {messages.map((msg, index) => (
@@ -46,7 +45,7 @@ export default function Chat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 p-2 rounded border"
+          className="text-white flex-1 p-2 rounded border"
           placeholder="Type a message..."
         />
         <button

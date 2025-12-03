@@ -6,6 +6,9 @@ import Profile from './authentication/Profile';
 import ChatButton from './authentication/ChatButton';
 import Chat from './Chat/Chat';
 
+
+
+
 function App() {
   const { isAuthenticated, isLoading, error } = useAuth0();
 
@@ -42,7 +45,7 @@ function App() {
       <Route path="/chat" element={<Chat />} />
       <Route path="/" element={
         <div className="app-container overflow-x-auto">
-          <div className="main-card-wrapper">
+          <div className="main-card-wrapper"> 
             <img 
               src="https://cdn.auth0.com/quantum-assets/dist/latest/logos/auth0/auth0-lockup-en-ondark.png" 
               alt="Auth0 Logo" 
