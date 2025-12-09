@@ -1,28 +1,44 @@
 {
   "name": "cavlo",
   "version": "1.0.0",
-  "description": "stateless | stateful be (to scale up easily) (db store data) | hard to scale up/down - chatapp, trading, gaming, excalidraw, bidirectional pipe",
-  "main": "index.js",
+  "description": "Scalable real-time chat application with WebSocket and Auth0",
+  "private": true,
   "scripts": {
-    "start": "cd chat-app && npm run dev",
+    "start": "npm run dev",
+    "dev": "concurrently \"npm run client\" \"npm run server\"",
+    "client": "cd chat-app && npm run dev",
     "server": "cd relayer-ws && npm run dev",
-    "dev": "concurrently \"npm run start\" \"npm run server\""
+    "build": "cd chat-app && npm run build",
+    "install:all": "npm install && cd chat-app && npm install && cd ../relayer-ws && npm install"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/VasuS609/RealtimApp.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": [
+    "websocket",
+    "chat",
+    "real-time",
+    "auth0",
+    "react",
+    "scalable"
+  ],
+  "author": "VasuS609",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/VasuS609/RealtimApp/issues"
   },
   "homepage": "https://github.com/VasuS609/RealtimApp#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
   "dependencies": {
     "clsx": "^2.1.1",
     "motion": "^12.23.25",
     "tailwind-merge": "^3.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
