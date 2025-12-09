@@ -1,4 +1,4 @@
-//this containt mostly authentication part not related to chat 
+// main.tsx (fixed)
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -9,7 +9,6 @@ import { BrowserRouter } from 'react-router-dom';
 const auth0Domain = import.meta.env.VITE_AUTH0_DOMAIN;
 const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
 
-// Wrap with Auth0Provider only if credentials are configured
 const renderApp = () => {
   if (auth0Domain && auth0ClientId) {
     return (
@@ -22,6 +21,7 @@ const renderApp = () => {
         }}
         useRefreshTokens={true}
         cacheLocation="localstorage"
+        skipRedirectCallback={window.location.search.includes('error=')}
       >
         <BrowserRouter>
           <App />
@@ -30,7 +30,6 @@ const renderApp = () => {
     );
   }
 
-  // If Auth0 not configured, just render app with router
   return (
     <BrowserRouter>
       <App />

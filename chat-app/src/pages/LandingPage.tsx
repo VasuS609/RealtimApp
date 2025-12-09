@@ -22,7 +22,7 @@ const defaultGlobeConfig = {
   maxRings: 3,
   initialPosition: { lat: 20, lng: 0 },
   autoRotate: true,
-  autoRotateSpeed: .4,
+  autoRotateSpeed: 0.4,
 };
 
 const sampleData = [
@@ -42,7 +42,6 @@ export default function LandingPage() {
 
   return (
     <div className="w-full h-screen flex flex-col justify-center items-center bg-[#0f1720]">
-      
       <EncryptedText
         className="text-xl font-mono font-semibold"
         text="Welcome to the Matrix, Cavlo"

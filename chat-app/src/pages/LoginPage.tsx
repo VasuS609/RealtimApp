@@ -1,4 +1,4 @@
-import { useAuth0 } from "../authentication/useAuth0Safe";
+import { useAuth0 } from "@auth0/auth0-react";
 import LoginButton from "../authentication/LoginButton";
 import LogoutButton from "../authentication/LogoutButton";
 import Profile from "../authentication/Profile";
