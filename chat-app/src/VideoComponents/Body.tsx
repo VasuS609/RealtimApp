@@ -78,7 +78,7 @@ setIsJoined(true);
   
 
   return (
-    <div className="w-full h-sreen p-2">
+    <div className="w-full h-sreen  p-2">
       <div className="flex gap-6">
         <div className=" border bor" id="localVideo">
           <video ref={localVideoRef}
