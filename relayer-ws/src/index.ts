@@ -1,29 +1,38 @@
-import { WebSocketServer } from "ws";
+// server.js (your existing chat server)
+import { Server } from 'socket.io';
 import http from 'http';
 
-const server = http.createServer()
+const server = http.createServer();
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
 
-const wss = new WebSocketServer({server})
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
 
-wss.on('connection', async(ws)=>{
-  console.log("user is connected");
-  ws.send("client is connected")
+  // ✅ Handle CHAT
+  socket.on("chat-message", (msg) => {
+    socket.broadcast.emit("chat-message", msg); // send to others
+  });
 
-  ws.on('error',()=> {console.error});
-  ws.on('message', (data)=>{
-    wss.clients.forEach((client)=>{
-      if(client.readyState == ws.OPEN){
-        client.send(data.toString());
-        console.log(data.toString());
-      }
-    })
+  // ✅ Handle WEBRTC SIGNALING
+  socket.on("webrtc-offer", (data) => {
+    socket.broadcast.emit("webrtc-offer", { from: socket.id, ...data });
+  });
 
-  ws.on('close', ()=>{
-    ws.send("user has been disconnected");
-  })
-  })
-})
+  socket.on("webrtc-answer", (data) => {
+    socket.broadcast.emit("webrtc-answer", { from: socket.id, ...data });
+  });
 
-server.listen(8080, ()=>{
-  console.log("server is running on port 8080");
-})
+  socket.on("webrtc-ice-candidate", (data) => {
+    socket.broadcast.emit("webrtc-ice-candidate", { from: socket.id, ...data });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
+server.listen(8080, () => {
+  console.log("Chat + WebRTC server running on http://localhost:8080");
+});
