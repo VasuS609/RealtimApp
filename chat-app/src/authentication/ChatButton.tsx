@@ -13,6 +13,7 @@ export default function ChatButton() {
       <button onClick={handleChat} className="button chat">
         Chat
       </button>
+      
     </div>
   );
 }
