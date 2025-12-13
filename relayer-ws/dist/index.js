@@ -1,36 +1,48 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ws_1 = require("ws");
 const http_1 = __importDefault(require("http"));
-const server = http_1.default.createServer();
-const wss = new ws_1.WebSocketServer({ server });
-wss.on('connection', (ws) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("user is connected");
-    ws.send("client is connected");
-    ws.on('error', () => { console.error; });
-    ws.on('message', (data) => {
-        wss.clients.forEach((client) => {
-            if (client.readyState == ws.OPEN) {
-                client.send(data.toString());
-            }
-        });
-        ws.on('close', () => {
-            ws.send("user has been disconnected");
+const socket_io_1 = require("socket.io");
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
+const PORT = Number(process.env.PORT) || 8081;
+const server = http_1.default.createServer(app);
+const io = new socket_io_1.Server(server, {
+    cors: { origin: "*" },
+});
+io.on("connection", (socket) => {
+    console.log(`Client connected: ${socket.id}`);
+    socket.on("join", () => {
+        const clients = Array.from(io.sockets.sockets.keys()).filter((id) => id !== socket.id);
+        socket.emit("existing-users", { peers: clients });
+        socket.broadcast.emit("new-user", { peerId: socket.id });
+    });
+    socket.on("offer", (data) => {
+        io.to(data.to).emit("offer", { from: socket.id, sdp: data.sdp });
+    });
+    socket.on("answer", (data) => {
+        io.to(data.to).emit("answer", { from: socket.id, sdp: data.sdp });
+    });
+    socket.on("ice-candidate", (data) => {
+        io.to(data.to).emit("ice-candidate", {
+            from: socket.id,
+            candidate: data.candidate,
         });
     });
-}));
-server.listen(8080, () => {
-    console.log("server is running on port 8080");
+    socket.on("join-room", ({ room }) => {
+        socket.join(room);
+    });
+    socket.on("leave-room", ({ room }) => {
+        socket.leave(room);
+    });
+    socket.on("disconnect", () => {
+        socket.broadcast.emit("user-left", { peerId: socket.id });
+    });
+});
+server.listen(PORT, () => {
+    console.log(`Relayer WS listening on http://localhost:${PORT}`);
 });

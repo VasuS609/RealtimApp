@@ -18,7 +18,8 @@ export default function Chat() {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const { send, data } = useWebSocket("ws://localhost:8080");
+  const chatUrl = (import.meta as any).env?.VITE_CHAT_WS_URL || "ws://localhost:8082";
+  const { send, data } = useWebSocket(chatUrl);
 
   useEffect(() => {
     if (!data) return;

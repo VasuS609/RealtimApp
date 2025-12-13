@@ -7,8 +7,7 @@ type RemoteStream = {
   stream: MediaStream;
 };
 
-const SIGNALING_SERVER_URL =
-  (import.meta as any).env?.VITE_SIGNALING_URL || "http://localhost:8081";
+const SIGNALING_SERVER_URL = "http://localhost:8081";
 
 export default function Body() {
   const [isJoined, setIsJoined] = useState(false);
@@ -126,10 +125,8 @@ export default function Body() {
       socketRef.current = socket;
 
       socket.on("connect", () => {
-        // Determine room from URL query (?room=xyz) or default
-        const params = new URLSearchParams(window.location.search);
-        const roomFromQuery = params.get("room") || "default";
-        socket.emit("join", { room: roomFromQuery });
+        // Join a named room so only those peers connect together
+        socket.emit("join", { room: "default" });
       });
 
       // New user joined (server emits "new-user")
