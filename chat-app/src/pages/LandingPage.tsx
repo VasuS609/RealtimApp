@@ -84,40 +84,38 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full min-h-screen flex flex-col justify-start -mt-10 top-0 items-center bg-[#0f1720] py-8">
+    <div className="w-full min-h-screen flex flex-col justify-start items-center bg-[#0f1720] py-8">
       
     {/* navbar */}
-      <div className="flex  justify-around bg-gray-700 opacity-85 hover:bg-gray-500 w-full mb-20 mt-4  fixed top-0 left-0 z-50">
-        <div>
-        Logo
-      </div>
-        
-           <EncryptedText className="text-xl font-mono font-semibold mb-8 flex justify-center"
-        text="Welcome to the Matrix, Cavlo"/>
-        <div className="">
-          <button
-          onClick={() => navigate("/login")}
-          className="bg-white text-black px-4 py-2 rounded"
-        >
-          Login
-        </button>
-        <button
-          onClick={() => navigate("/cavlo")}
-          className=" bg-white text-black px-4 py-2 rounded"
-        >
+      <div className="flex justify-between items-center bg-gray-900/80 backdrop-blur-md w-full px-8 py-4 fixed top-0 left-0 z-50 border-b border-gray-700">
+        <div className="text-white font-bold text-xl">
           Cavlo
-        </button>
         </div>
-        <div>
+        
+        <EncryptedText className="text-lg font-mono font-semibold text-white"
+        text="Welcome to the Matrix"/>
+        
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate("/login")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => navigate("/cavlo")}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200"
+          >
+            Cavlo
+          </button>
         </div>
-       
-     
-</div> 
+      </div>
+      
       <div className="flex flex-col items-center gap-10 w-full pt-60">
         <div className="flex flex-col md:flex-row items-center justify-center gap-10">
           <div
             className="rounded-full overflow-hidden"
-            style={{ width: "560px", height: "560px" }}
+            style={{ width: "420px", height: "420px" }}
           >
             <World globeConfig={defaultGlobeConfig} data={sampleData} />
           </div>
@@ -128,11 +126,9 @@ export default function LandingPage() {
         </div>
       </div>
       
-<hr className="border-gray-400 border-t-2 my-4"></hr>
+      <hr className="border-gray-400 border-t-2 my-8 w-full" />
      
-     <LandingPageContinue/>
-     </div>
-     
- 
+      <LandingPageContinue/>
+    </div>
   );
 }

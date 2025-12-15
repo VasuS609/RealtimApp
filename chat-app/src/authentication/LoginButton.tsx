@@ -5,9 +5,9 @@ const LoginButton = () => {
   return (
     <button 
       onClick={() => loginWithRedirect()} 
-      className="button login"
+      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200"
     >
-      Log In
+      Log In with Auth0
     </button>
   );
 };

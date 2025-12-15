@@ -9,11 +9,11 @@ export default function ChatButton() {
   };
 
   return (
-    <div>
-      <button onClick={handleChat} className="button chat">
-        Chat
-      </button>
-      
-    </div>
+    <button 
+      onClick={handleChat} 
+      className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200"
+    >
+      Go to Chat
+    </button>
   );
 }

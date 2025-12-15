@@ -12,21 +12,20 @@ const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
 const renderApp = () => {
   if (auth0Domain && auth0ClientId) {
     return (
-      <Auth0Provider
-        domain={auth0Domain}
-        clientId={auth0ClientId}
-        authorizationParams={{ 
-          redirect_uri: window.location.origin,
-          scope: 'openid profile email'
-        }}
-        useRefreshTokens={true}
-        cacheLocation="localstorage"
-        skipRedirectCallback={window.location.search.includes('error=')}
-      >
-        <BrowserRouter>
+      <BrowserRouter>
+        <Auth0Provider
+          domain={auth0Domain}
+          clientId={auth0ClientId}
+          authorizationParams={{ 
+            redirect_uri: `${window.location.origin}/callback`,
+            scope: 'openid profile email'
+          }}
+          useRefreshTokens={true}
+          cacheLocation="localstorage"
+        >
           <App />
-        </BrowserRouter>
-      </Auth0Provider>
+        </Auth0Provider>
+      </BrowserRouter>
     );
   }
 
