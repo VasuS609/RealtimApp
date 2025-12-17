@@ -23,9 +23,23 @@ io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
   // Join a specific room and notify peers within that room only
-  socket.on("join", ({roomId} :{roomId:string}) => {
-    const targetRoom = roomId || "default";
+  socket.on("join", ({room, isHost} :{room:string}) => {
+    const targetRoom = room || "default";
     socket.join(targetRoom);
+    socket.data.room = room;
+
+    if(!rooms.has(room)){
+      rooms.set(room, new Set())
+    }
+
+    const roomSet = rooms.get(room);
+    roomSet.add(socket.id);
+
+    const existingPeers = Array.from(roomSet).filter(id => id !== socket.id);
+    const prevRoom = Array.from(socket.rooms).filter(r => !== socket.id);
+    prevRoom.forEach(r => socket.leave(r));
+
+    socket.join(room);
     console.log(`Socket ${socket.id} joined room: `, targetRoom);
     // Get peers in this room (excluding self)
     const roomSet = io.sockets.adapter.rooms.get(targetRoom);
