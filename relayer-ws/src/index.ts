@@ -26,9 +26,6 @@ app.get("/health", (req, res) => {
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
-  socket.on("start", ({room}:{room:string})=>{
-
-  })
 
   socket.on("join", ({ room }: { room: string }) => {
     const targetRoom = room || "default";
@@ -88,14 +85,6 @@ io.on("connection", (socket) => {
   socket.on("leave-room", () => {
     const room = socket.data.room;
 
-    // if (rooms.has(room)) {
-    //   const roomSet = rooms.get(room)!;
-    //   roomSet.delete(socket.id);
-    //   if (roomSet.size === 0) {
-    //     rooms.delete(room);
-    //   }
-    // }
-    // socket.leave(room);
 
     if(room && room.has(room)){
       const roomSet = rooms.get(room)!;

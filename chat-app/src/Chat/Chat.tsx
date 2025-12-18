@@ -64,8 +64,7 @@ export default function Chat() {
 
   return (
     <div className="h-screen p-2 grid grid-rows-[1fr_auto] gap-2 text-black bg-gray-100  transition w-110">
-      <BackgroundRippleEffect />
-
+      
       <div
         id="chatBox"
         className="overflow-y-auto p-2 h-[80vh] bg-white dark:bg-gray-800 rounded shadow z-10"
@@ -123,7 +122,7 @@ export default function Chat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleMessage()}
+          onKeyDown={(e) => e.key === "Enter" && handleMessage()}
           className="text-black hover:scale-105 dark:text-white bg-white dark:bg-gray-600 flex-1 p-2 rounded border duration-500 ease-in-out"
           placeholder="Type a message..."
         />

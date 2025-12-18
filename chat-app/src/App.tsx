@@ -4,7 +4,6 @@ import LoginPage from "./pages/LoginPage";
 import CallbackPage from "./authentication/CallbackPage";
 import ChatPage from "./pages/ChatPage";
 import Cavlo from "./Cavlo/cavlo";
-import Body from "./room/[roomId]/Room";
 
 export default function App() {
   return (
@@ -14,7 +13,6 @@ export default function App() {
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="/chat" element={<ChatPage />} />
       <Route path="/cavlo" element={<Cavlo />} />
-      <Route path="/cavlo/:roomId" element={<Body/>} />
     </Routes>
   );
 }
