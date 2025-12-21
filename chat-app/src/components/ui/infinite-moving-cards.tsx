@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, {useRef, useState } from "react";
 import { useMotionValueEvent, useScroll, motion } from "motion/react";
 import { cn } from "../../lib/utils";
 
-export const StickyScroll = ({
+export const InfiniteMovingCards = ({
   content,
   contentClassName,
 }: {
