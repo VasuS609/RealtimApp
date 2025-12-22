@@ -3,39 +3,8 @@ import React from "react";
 import { Input } from "../components/ui/input";
 import { cn } from "../lib/utils";
 import { Label } from "@radix-ui/react-label";
-import {InfiniteMovingCards} from "../components/ui/infinite-moving-cards"
 
-const testimonials = [
-  {
-    title: "Charles Dickens",
-    description: "A Tale of Two Cities",
-    content:
-      "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair.",
-  },
-  {
-    title: "William Shakespeare",
-    description: "Hamlet",
-    content:
-      "To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take Arms against a Sea of troubles, And by opposing end them: to die, to sleep.",
-  },
-  {
-    title: "Edgar Allan Poe",
-    description: "A Dream Within a Dream",
-    content: "All that we see or seem is but a dream within a dream.",
-  },
-  {
-    title: "Jane Austen",
-    description: "Pride and Prejudice",
-    content:
-      "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-  },
-  {
-    title: "Herman Melville",
-    description: "Moby-Dick",
-    content:
-      "Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.",
-  },
-];
+
 
 export default function Footer() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,9 +14,7 @@ export default function Footer() {
   return (
   <div>
 <div className="h-160 rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-      <InfiniteMovingCards
-        content={testimonials}
-      />
+    
     </div>
   
     <div className="shadow-input mt-20 mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black">

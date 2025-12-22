@@ -152,6 +152,61 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.moving-border {
+  --primary: 24, 92%, 58%; /* HSL without 'hsl()' prefix for Tailwind compatibility */
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  isolation: isolate; /* Ensures z-index stacking works */
+}
+
+/* Static outer glow / subtle border */
+.moving-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 88% 40%,
+    hsl(var(--primary)) 0%,
+    transparent 40%
+  ),
+  radial-gradient(circle at 10% 20%, hsl(var(--primary) / 0.3) 0%, transparent 50%),
+  radial-gradient(circle at 50% 90%, hsl(var(--primary) / 0.2) 0%, transparent 60%);
+  opacity: 0.7;
+}
+
+/* Rotating beam */
+.moving-border::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--primary)) 45%,
+    hsl(var(--primary)) 55%,
+    transparent
+  );
+  animation: rotateBeam 6s linear infinite;
+  z-index: -2;
+  opacity: 0.5;
+}
+
+@keyframes rotateBeam {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

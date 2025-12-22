@@ -6,13 +6,18 @@
     "moduleResolution": "bundler",
     "strict": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "isolatedModules": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "lib": ["ESNext", "DOM"],
-    
+    "noImplicitAny": false,
+    "types": ["vite/client", "node"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "src/landingPage"]
+  "exclude": ["node_modules", "src/landingPage"],
+  "ts-node": {
+    "skipLibCheck": true
+  }
 }

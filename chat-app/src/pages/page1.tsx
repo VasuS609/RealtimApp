@@ -8,6 +8,7 @@ import UserProfile from "./component/UserProfile";
 import Footer from "./footer";
 import Page3 from "./page3";
 import { TypewriterEffect } from "../components/ui/typewriter-effect";
+import { AnimatedModalDemo } from "./component/AnimatedModalDemo";
 
 const words = ["trust", "closeness", "together", "globally"];
 
@@ -121,6 +122,7 @@ export default function LandingPage() {
                 Build <FlipWords words={words} /> <br />
                 Where Every Conversation Bridges Continents
               </div>
+              <AnimatedModalDemo/>
             </div>
           </div>
         </section>

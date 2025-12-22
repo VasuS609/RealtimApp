@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll, motion } from "motion/react";
 import { cn } from "../../lib/utils";
 
@@ -24,7 +24,7 @@ export const StickyScroll = ({
 
   const cardLength = content.length;
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+  useMotionValueEvent(scrollYProgress, "change", (latest: number) => {
     const cardsBreakpoints = content.map((_, index) => index / cardLength);
     const closestBreakpointIndex = cardsBreakpoints.reduce(
       (acc, breakpoint, index) => {
@@ -40,9 +40,7 @@ export const StickyScroll = ({
   });
 
   const backgroundColors = [
-    "#424242", // slate-900
-    "#000000", // black
-    "#171717", // neutral-900
+
   ];
 
   const gradients = [
@@ -52,14 +50,15 @@ export const StickyScroll = ({
   ];
 
   return (
-    <motion.div
+    
+    <motion.div 
       ref={ref}
       animate={{
         backgroundColor:
           backgroundColors[activeCard % backgroundColors.length],
       }}
       transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="relative flex h-120 justify-center space-x-10 overflow-y-auto rounded-md p-10"
+      className="relative flex h-120  justify-center scrollbar-w-1 space-x-10 overflow-y-auto rounded-md p-10"
     >
       {/* LEFT CONTENT */}
       <div className="relative flex items-start px-4">
