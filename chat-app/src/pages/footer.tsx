@@ -13,18 +13,13 @@ export default function Footer() {
   };
   return (
   <div>
-<div className="h-160 rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-    
-    </div>
+    <hr className="w-full border-0 h-0.5 bg-gray-500" />
   
     <div className="shadow-input mt-20 mx-auto w-full max-w-md rounded-none bg-white p-4 md:rounded-2xl md:p-8 dark:bg-black">
       <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-200">
-        Welcome to Cavlo
+        Connect with me
       </h2>
-      <p className="mt-2 max-w-sm text-sm text-neutral-600 dark:text-neutral-300">
-       Connect with me
-      </p>
-
+    
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
           <LabelInputContainer>
@@ -57,6 +52,13 @@ export default function Footer() {
         <div className="my-8 h-px w-full bg-linear-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
         
       </form>
+  </div>
+  <div className="flex flex-col items-center">
+    <p className="font-semibold text-xs">Made with ❤️ by <a href="https://vaxh.space" target="_blank" className="text-xl cursor-pointer text-amber-700">Vash </a></p>
+    <div>
+      <span className="text-yellow-700  cursor-pointer" >srcCode</span>
+    </div>
+    
   </div>
     </div>
   );

@@ -91,19 +91,19 @@ const people = [
   },
 ];
 
-export default function LandingPageContinue() {
+export default function Page2() {
   return (
-    <div className="w-full rounded-3xl min-h-screen flex  flex-col justify-center items-center pt-20">
+    <div className="w-full rounded-3xl min-h-screen flex  flex-col justify-center items-center pt-10 mb-10">
       {/* Center Text */}
-     <div className="hidden md:block">
-  <div className="moving-border-card w-full max-w-4xl mx-auto rounded-2xl text-center text-2xl font-sans antialiased relative shadow-2xl shadow-neutral-600">
-    <p className="indent-5 text-white">
+        <div className="w-full px-4 mb-16">
+  <div className="moving-border-card w-full max-w-6xl mx-auto rounded-3xl text-center font-sans antialiased relative ease-linear duration-900 hover:scale-105 hover:shadow-3xl shadow-2xl shadow-neutral-600 p-12 md:p-16">
+    <p className="text-white text-lg lg:text-xl leading-relaxed">
       Join millions across 190+ countries speaking, laughing, brainstorming, and building—
       <EncryptedText
         text=" face-to-face, voice-to-voice, heartbeat-to-heartbeat—in stunning clarity."
       />
     </p>
-    <div className="flex flex-row items-center justify-center pt-10 flex-wrap gap-2">
+    <div className="flex flex-row items-center justify-center pt-12 md:pt-16 flex-wrap gap-2">
       <AnimatedTooltip items={people} />
     </div>
   </div>
@@ -114,9 +114,9 @@ export default function LandingPageContinue() {
 </div>
 <div>
 </div>
-<div className="flex md:w-full items-center w-full min-w-7xl py-5 gap-5 mt-20">
+<div className="flex md:w-full items-center w-full min-w-7xl py-5 gap-5 mt-3">
 
-     <WorldMap       
+     <WorldMap className="hover:scale-105 duration-600 ease-linear"       
         dots={[
           { start: { lat: 64.2008, lng: -149.4937 }, end: { lat: 34.0522, lng: -118.2437 } }, // Alaska → LA
           { start: { lat: 64.2008, lng: -149.4937 }, end: { lat: -15.7975, lng: -47.8919 } }, // Alaska → Brazil
@@ -132,7 +132,6 @@ export default function LandingPageContinue() {
       <StickyScroll content={content} />
 </div>
    
-      <hr className="border-gray-600 my-16 w-4/5 mx-auto" />
     </div>
   );
 }
