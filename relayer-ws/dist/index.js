@@ -25,6 +25,7 @@ app.get("/health", (req, res) => {
 io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
     socket.on("join", ({ room }) => {
+        console.log(`Socket ${socket.id} requests to join room: ${room}`);
         const targetRoom = room || "default";
         // Leave any previous rooms (clean up old room membership)
         for (const oldRoom of socket.rooms) {
