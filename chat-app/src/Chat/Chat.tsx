@@ -89,7 +89,7 @@ export default function Chat() {
                         </strong>
 
                         {msg.timestamp && (
-                          <span className="text-xs text-gray-500">
+                          <span className=" text-gray-500 text-xs">
                             {new Date(msg.timestamp).toLocaleTimeString()}
                           </span>
                         )}
