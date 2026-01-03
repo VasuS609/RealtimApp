@@ -6,13 +6,9 @@ export default function Cavlo() {
 
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-900">
       <Header />
-      <div className="pt-20 px-4">
-      
-        <Body /> 
-      </div>
-      
+      <Body /> 
     </div>
   );
 }

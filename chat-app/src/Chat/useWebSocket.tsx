@@ -39,6 +39,7 @@ export const useWebSocket = (url: string) => {
 
     ws.current.onmessage = (event) => {
       try {
+        console.log("WebSocket received:", event.data, typeof event.data);
         setData(event.data);
       } catch (err) {
         console.error("Error processing message:", err);

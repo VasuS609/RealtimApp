@@ -27,13 +27,15 @@ export default function Chat() {
   const isConnected = readyState === WebSocket.OPEN;
 
   useEffect(() => {
+    console.log("Chat useEffect - data changed:", data, typeof data);
     if (!data) return;
     if (typeof data !== "string") {
-      console.warn("Ignoring non-text websocket payload", data);
+      console.warn("Ignoring non-text websocket payload", data, typeof data);
       return;
     }
 
     try {
+      console.log("Attempting to parse:", data);
       const parsedMessage: Message = JSON.parse(data);
       
       // Validate message structure

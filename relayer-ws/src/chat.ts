@@ -23,10 +23,10 @@ wss.on("connection", (ws) => {
       return;
     }
     
-    // Broadcast to all clients except sender
+    // Broadcast to all clients including sender
     wss.clients.forEach((client) => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message);
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(messageStr);
       }
     });
   });

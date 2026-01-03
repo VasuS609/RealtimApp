@@ -11,7 +11,7 @@ export default function LoginPage() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0f1720]">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#e3e3e3]">
       <img
         src="https://cdn.auth0.com/quantum-assets/dist/latest/logos/auth0/auth0-lockup-en-ondark.png"
         alt="Auth0 Logo"
@@ -20,7 +20,7 @@ export default function LoginPage() {
 
       {isAuthenticated ? (
         <div className="flex flex-col items-center gap-6">
-          <p className="text-green-400 font-semibold text-lg">✓ Logged In</p>
+          <p className="text-gray-800 font-semibold text-lg">Logged In</p>
           <Profile />
           <div className="flex gap-4">
             <ChatButton />
