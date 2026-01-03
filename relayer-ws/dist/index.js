@@ -7,26 +7,90 @@ const http_1 = __importDefault(require("http"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const socket_io_1 = require("socket.io");
-require("./chat"); // Start the chat WebSocket server
+require("./chat");
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)());
+// Production-ready CORS configuration
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(",")
+    : ["http://localhost:5173", "http://localhost:3000"];
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin)
+            return callback(null, true);
+        if (ALLOWED_ORIGINS.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true
+}));
 const PORT = Number(process.env.PORT) || 8081;
 const server = http_1.default.createServer(app);
 const rooms = new Map(); // roomId → Set<socketId>
+const MAX_ROOM_SIZE = Number(process.env.MAX_ROOM_SIZE) || 10;
+// Rate limiting: Track message counts per socket
+const messageCounts = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const RATE_LIMIT_MAX_MESSAGES = 100;
+// Cleanup rate limit data periodically
+setInterval(() => {
+    const now = Date.now();
+    for (const [socketId, data] of messageCounts.entries()) {
+        if (now > data.resetTime) {
+            messageCounts.delete(socketId);
+        }
+    }
+}, RATE_LIMIT_WINDOW);
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: `http://localhost:${PORT}`,
-        methods: ["POST", "GET"] // Browser ⇄⇄⇄ Server   creating WebSocket pipe
+        origin: ALLOWED_ORIGINS,
+        methods: ["POST", "GET"],
+        credentials: true
     },
+    maxHttpBufferSize: 1e6, // 1MB max message size
+    pingTimeout: 60000,
+    pingInterval: 25000
 });
 app.get("/health", (req, res) => {
-    res.json({ status: "ok", timestamp: Date.now() });
+    res.json({
+        status: "ok",
+        timestamp: Date.now(),
+        connections: io.engine.clientsCount,
+        rooms: rooms.size
+    });
 });
+// Rate limiting helper
+function checkRateLimit(socketId) {
+    const now = Date.now();
+    const data = messageCounts.get(socketId);
+    if (!data || now > data.resetTime) {
+        messageCounts.set(socketId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        return true;
+    }
+    if (data.count >= RATE_LIMIT_MAX_MESSAGES) {
+        return false;
+    }
+    data.count++;
+    return true;
+}
 io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
     socket.on("join", ({ room }) => {
         console.log(`Socket ${socket.id} requests to join room: ${room}`);
-        const targetRoom = room || "default";
+        const targetRoom = (room || "default").substring(0, 50); // Limit room name length
+        // Validate room name
+        if (!/^[a-zA-Z0-9_-]+$/.test(targetRoom)) {
+            socket.emit("error", { message: "Invalid room name" });
+            return;
+        }
+        // Check room size limit
+        if (rooms.has(targetRoom) && rooms.get(targetRoom).size >= MAX_ROOM_SIZE) {
+            socket.emit("error", { message: "Room is full" });
+            return;
+        }
         // Leave any previous rooms (clean up old room membership)
         for (const oldRoom of socket.rooms) {
             if (oldRoom === socket.id)
@@ -38,7 +102,7 @@ io.on("connection", (socket) => {
                 if (oldRoomSet.size === 0) {
                     rooms.delete(oldRoom);
                 }
-                // Notify others in old room (optional)
+                // Notify others in old room
                 socket.to(oldRoom).emit("user-left", { peerId: socket.id });
             }
         }
@@ -57,12 +121,24 @@ io.on("connection", (socket) => {
     });
     // --- Signaling forwarding (room-safe) ---
     socket.on("offer", (data) => {
+        if (!checkRateLimit(socket.id)) {
+            socket.emit("error", { message: "Rate limit exceeded" });
+            return;
+        }
         io.to(data.to).emit("offer", { from: socket.id, sdp: data.sdp });
     });
     socket.on("answer", (data) => {
+        if (!checkRateLimit(socket.id)) {
+            socket.emit("error", { message: "Rate limit exceeded" });
+            return;
+        }
         io.to(data.to).emit("answer", { from: socket.id, sdp: data.sdp });
     });
     socket.on("ice-candidate", (data) => {
+        if (!checkRateLimit(socket.id)) {
+            socket.emit("error", { message: "Rate limit exceeded" });
+            return;
+        }
         io.to(data.to).emit("ice-candidate", { from: socket.id, candidate: data.candidate });
     });
     socket.on("leave-room", () => {

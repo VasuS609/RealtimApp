@@ -13,6 +13,7 @@ export default function Body() {
   const [isJoined, setIsJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
   const [remoteStreams, setRemoteStreams] = useState<RemoteStream[]>([]);
   const [room, setRoom] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
@@ -50,6 +51,20 @@ export default function Body() {
     setRemoteStreams((prev) => prev.filter((r) => r.id !== id));
   };
 
+  const cleanupPeer = (peerId: string) => {
+    const pc = peersRef.current.get(peerId);
+    if (pc) {
+      try {
+        pc.close();
+      } catch (err) {
+        console.error("Error closing peer connection:", err);
+      }
+      peersRef.current.delete(peerId);
+    }
+    dataChannelsRef.current.delete(peerId);
+    removeRemoteStream(peerId);
+  };
+
   const createPeerConnection = useCallback(
     (peerId: string, isOfferer: boolean) => {
       if (peersRef.current.has(peerId)) {
@@ -79,11 +94,15 @@ export default function Body() {
       };
 
       pc.onconnectionstatechange = () => {
+        console.log(`Peer ${peerId} connection state:`, pc.connectionState);
         if (["failed", "closed"].includes(pc.connectionState)) {
-          pc.close();
-          peersRef.current.delete(peerId);
-          dataChannelsRef.current.delete(peerId);
-          removeRemoteStream(peerId);
+          cleanupPeer(peerId);
+        } else if (pc.connectionState === "disconnected") {
+          setTimeout(() => {
+            if (pc.connectionState === "disconnected") {
+              cleanupPeer(peerId);
+            }
+          }, 5000);
         }
       };
 
@@ -197,13 +216,7 @@ export default function Body() {
       });
 
       socket.on("user-left", ({ peerId }: { peerId: string }) => {
-        const pc = peersRef.current.get(peerId);
-        if (pc) {
-          pc.close();
-          peersRef.current.delete(peerId);
-          dataChannelsRef.current.delete(peerId);
-          removeRemoteStream(peerId);
-        }
+        cleanupPeer(peerId);
       });
     },
     [createPeerConnection]
@@ -227,11 +240,22 @@ export default function Body() {
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-      const socket = io(SIGNALING_SERVER_URL, { transports: ["websocket"] });
+      const socket = io(SIGNALING_SERVER_URL, {
+        transports: ["websocket"],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5
+      });
       socketRef.current = socket;
 
       socket.on("connect", () => {
-        setupSocketHandlers(socket, true, roomName); // 🔹 I am host
+        console.log("Socket connected");
+        setSocketConnected(true);
+        setupSocketHandlers(socket, true, roomName);
+      });
+
+      socket.on("disconnect", () => {
+        setSocketConnected(false);
       });
 
       setIsJoined(true);
@@ -261,11 +285,22 @@ export default function Body() {
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-      const socket = io(SIGNALING_SERVER_URL, { transports: ["websocket"] });
+      const socket = io(SIGNALING_SERVER_URL, {
+        transports: ["websocket"],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5
+      });
       socketRef.current = socket;
 
       socket.on("connect", () => {
-        setupSocketHandlers(socket, false, roomName); // 🔸 I am guest
+        console.log("Socket connected");
+        setSocketConnected(true);
+        setupSocketHandlers(socket, false, roomName);
+      });
+
+      socket.on("disconnect", () => {
+        setSocketConnected(false);
       });
 
       setIsJoined(true);
@@ -309,6 +344,12 @@ export default function Body() {
   return (
     <div className="p-4">
       <h2 className="text-lg font-semibold mb-2 flex ">Cavlo WebRTC</h2>
+      
+      {!socketConnected && isJoined && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded mb-3">
+          Reconnecting to server...
+        </div>
+      )}
 
       <div className="flex gap-4 justify-center">
         <div>
