@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useWebSocket } from "./useWebSocket";
 import { HoverBorderGradient } from "../components/ui/hover-border-gradient";
 import { AspectRatio } from "../components/ui/aspect-ratio";
@@ -13,12 +13,18 @@ interface Message {
   timestamp?: string;
 }
 
+const MAX_MESSAGE_LENGTH = 500;
+const MAX_MESSAGES = 100;
+
 export default function Chat() {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
 
   const chatUrl = (import.meta as any).env?.VITE_CHAT_WS_URL || "ws://localhost:8082";
-  const { send, data } = useWebSocket(chatUrl);
+  const { send, data, readyState } = useWebSocket(chatUrl);
+
+  const isConnected = readyState === WebSocket.OPEN;
 
   useEffect(() => {
     if (!data) return;
@@ -29,15 +35,53 @@ export default function Chat() {
 
     try {
       const parsedMessage: Message = JSON.parse(data);
-      setMessages((prev) => [...prev, parsedMessage]);
+      
+      // Validate message structure
+      if (!parsedMessage.user || !parsedMessage.message) {
+        console.error("Invalid message structure");
+        return;
+      }
+      
+      // Sanitize message content
+      const sanitizedMessage = {
+        ...parsedMessage,
+        message: sanitizeInput(parsedMessage.message)
+      };
+      
+      setMessages((prev) => {
+        const updated = [...prev, sanitizedMessage];
+        // Keep only last MAX_MESSAGES to prevent memory issues
+        return updated.slice(-MAX_MESSAGES);
+      });
+      
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        if (chatBoxRef.current) {
+          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }
+      }, 100);
     } catch (e) {
       console.error("Failed to parse message:", e);
-      console.log("Raw message:", data);
     }
   }, [data]);
 
+  function sanitizeInput(text: string): string {
+    // Remove potentially harmful characters
+    return text
+      .replace(/[<>]/g, '')
+      .substring(0, MAX_MESSAGE_LENGTH)
+      .trim();
+  }
+
   function handleMessage() {
     if (!input.trim()) return;
+    if (!isConnected) {
+      alert("Not connected to chat server");
+      return;
+    }
+
+    const sanitizedInput = sanitizeInput(input);
+    if (!sanitizedInput) return;
 
     const messageObj: Message = {
       user: {
@@ -45,7 +89,7 @@ export default function Chat() {
         name: "You",
         avatar: "https://api.dicebear.com/7.x/avatars/svg?seed=User1",
       },
-      message: input,
+      message: sanitizedInput,
       timestamp: new Date().toISOString(),
     };
 
@@ -57,9 +101,16 @@ export default function Chat() {
     <div className="h-[calc(100vh-4rem)] p-2 grid grid-rows-[1fr_auto] gap-2 text-black bg-gray-100  transition w-110">
       
       <div
+        ref={chatBoxRef}
         id="chatBox"
         className="overflow-y-auto p-2 h-[80vh] bg-white dark:bg-gray-800 rounded shadow z-10"
       >
+        {!isConnected && (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-2">
+            Connecting to chat server...
+          </div>
+        )}
+        
         <AspectRatio ratio={16 / 9}>
           {messages.length === 0 ? (
             <p className="text-gray-600 dark:text-gray-900 text-center  p-2 dark:bg-gray-400 hover:bg-gray-500 duration-300 shadow-2xl">
@@ -114,8 +165,10 @@ export default function Chat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleMessage()}
-          className="text-black hover:scale-105 dark:text-white bg-white dark:bg-gray-600 flex-1 p-2 rounded border duration-500 ease-in-out"
-          placeholder="Type a message..."
+          maxLength={MAX_MESSAGE_LENGTH}
+          disabled={!isConnected}
+          className="text-black hover:scale-105 dark:text-white bg-white dark:bg-gray-600 flex-1 p-2 rounded border duration-500 ease-in-out disabled:opacity-50"
+          placeholder={isConnected ? "Type a message..." : "Connecting..."}
         />
 
         <HoverBorderGradient onClick={handleMessage} className="">

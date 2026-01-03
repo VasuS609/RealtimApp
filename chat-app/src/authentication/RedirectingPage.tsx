@@ -4,7 +4,7 @@ export default function ChatButton() {
   const navigate = useNavigate();
 
   const handleChat = () => {
-    console.log("Redirecting to chat page");
+    console.log("Redirecting to LandingPage");
     navigate("/LandingPage")
   };
 

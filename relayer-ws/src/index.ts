@@ -5,18 +5,41 @@ import { Server } from "socket.io";
 import "./chat"; // Start the chat WebSocket server
 
 const app = express();
-app.use(cors());
+
+// Production-ready CORS configuration
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(",") 
+  : ["http://localhost:5173", "http://localhost:3000"];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 const PORT = Number(process.env.PORT) || 8081;
 const server = http.createServer(app);
 
 const rooms = new Map<string, Set<string>>(); // roomId → Set<socketId>
+const MAX_ROOM_SIZE = Number(process.env.MAX_ROOM_SIZE) || 10;
 
 const io = new Server(server, {
-  cors:{
-    origin:`http://localhost:${PORT}`,
-    methods:["POST", "GET"]    // Browser ⇄⇄⇄ Server   creating WebSocket pipe
+  cors: {
+    origin: ALLOWED_ORIGINS,
+    methods: ["POST", "GET"],
+    credentials: true
   },
+  maxHttpBufferSize: 1e6, // 1MB max message size
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
 app.get("/health", (req, res) => { //get route
@@ -29,7 +52,19 @@ io.on("connection", (socket) => {
 
   socket.on("join", ({ room }: { room: string }) => {
     console.log(`Socket ${socket.id} requests to join room: ${room}`);
-    const targetRoom = room || "default";
+    const targetRoom = (room || "default").substring(0, 50); // Limit room name length
+    
+    // Validate room name
+    if (!/^[a-zA-Z0-9_-]+$/.test(targetRoom)) {
+      socket.emit("error", { message: "Invalid room name" });
+      return;
+    }
+    
+    // Check room size limit
+    if (rooms.has(targetRoom) && rooms.get(targetRoom)!.size >= MAX_ROOM_SIZE) {
+      socket.emit("error", { message: "Room is full" });
+      return;
+    }
     
     // Leave any previous rooms (clean up old room membership)
     for (const oldRoom of socket.rooms) {
@@ -42,7 +77,7 @@ io.on("connection", (socket) => {
         if (oldRoomSet.size === 0) {
           rooms.delete(oldRoom);
         }
-        // Notify others in old room (optional)
+        // Notify others in old room
         socket.to(oldRoom).emit("user-left", { peerId: socket.id });
       }
     }
