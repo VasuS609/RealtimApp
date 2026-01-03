@@ -111,30 +111,44 @@ export default function Body() {
     (socket: Socket, amHost: boolean, roomName: string) => {
       const resolvedRoom = roomName || "default";
 
+      // Remove all previous listeners to prevent duplicates
+      socket.removeAllListeners();
+
       socket.emit("join", { room: resolvedRoom, isHost: amHost });
+
+      // Handle socket errors
+      socket.on("error", (error: any) => {
+        console.error("Socket error:", error);
+        setError(error.message || "Socket connection error");
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log("Socket disconnected:", reason);
+        setError("Disconnected from server");
+      });
 
       // 🔹 HOST: When a new user joins, HOST sends offer
       if (amHost) {
         socket.on("new-user", async ({ peerId }: { peerId: string }) => {
-          const pc = createPeerConnection(peerId, true);
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          socket.emit("offer", { to: peerId, sdp: offer });
+          try {
+            const pc = createPeerConnection(peerId, true);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            socket.emit("offer", { to: peerId, sdp: offer });
+          } catch (err) {
+            console.error("Error creating offer:", err);
+          }
         });
-
-        // Host should NOT receive "existing-users" (they are first)
       }
 
-      //  GUEST: When joining, receive list of existing peers → but DO NOT offer!
+      //  GUEST: When joining, receive list of existing peers
       if (!amHost) {
         socket.on("existing-users", ({ peers }: { peers: string[] }) => {
-          // Guest does nothing here — waits for offer from host
           console.log("Existing peers:", peers);
-          // Optionally: if multi-user, you might need more logic, but for 1:1, host will offer
         });
       }
 
-      // Handle incoming offer (guest or multi-user)
+      // Handle incoming offer
       socket.on("offer", async ({ from, sdp }) => {
         if (peersRef.current.has(from)) {
           console.warn(`PC already exists for ${from}, ignoring offer`);
@@ -148,6 +162,7 @@ export default function Body() {
           socket.emit("answer", { to: from, sdp: answer });
         } catch (err) {
           console.error("Error handling offer:", err);
+          setError("Failed to establish connection");
         }
       });
 
@@ -172,7 +187,7 @@ export default function Body() {
       // ICE
       socket.on("ice-candidate", async ({ from, candidate }) => {
         const pc = peersRef.current.get(from);
-        if (pc) {
+        if (pc && pc.remoteDescription) {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(candidate));
           } catch (err) {
