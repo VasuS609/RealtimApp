@@ -3,7 +3,6 @@
 A scalable WebRTC-based video chat application with Auth0 authentication, featuring real-time communication, interactive 3D globe, and modern UI.
 
 ## ✨ Features
-
 - 🎥 **Video/Audio Calls** - WebRTC peer-to-peer connections
 - 💬 **Real-time Chat** - WebSocket-based messaging
 - 🌍 **3D Globe** - Interactive Three.js globe with connection arcs
